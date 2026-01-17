@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Topbar } from '@/components/layout/Topbar';
 import { StatCard } from '@/components/ui/StatCard';
@@ -24,6 +24,7 @@ import {
   List
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const formatBytes = (bytes: number): string => {
   if (bytes === 0) return '0 B';
@@ -34,10 +35,16 @@ const formatBytes = (bytes: number): string => {
 };
 
 export default function SiteDashboard() {
-  const { sites } = useSiteStore();
+  const { sites, fetchSites, isLoading } = useSiteStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('recent');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const { t } = useTranslation();
+  
+  // Fetch sites on mount
+  useEffect(() => {
+    fetchSites();
+  }, [fetchSites]);
   
   // Calculate stats
   const stats = useMemo(() => {
@@ -96,34 +103,34 @@ export default function SiteDashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold">Mes sites hébergés</h1>
+          <h1 className="text-3xl font-bold">{t('my_hosted_sites')}</h1>
           <p className="text-muted-foreground mt-1">
-            Gérez et déployez vos sites statiques en un clic
+            {t('manage_sites_desc')}
           </p>
         </motion.div>
         
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard
-            title="Total sites"
+            title={t('total_sites')}
             value={stats.totalSites}
             icon={Globe}
             trend={{ value: 12, isPositive: true }}
           />
           <StatCard
-            title="Sites actifs"
+            title={t('active_sites')}
             value={stats.activeSites}
             icon={Activity}
             subtitle={`${Math.round((stats.activeSites / stats.totalSites) * 100)}% du total`}
           />
           <StatCard
-            title="Stockage utilisé"
+            title={t('storage_used')}
             value={formatBytes(stats.totalStorage)}
             icon={HardDrive}
             progress={stats.storagePercentage}
           />
           <StatCard
-            title="Bande passante"
+            title={t('bandwidth')}
             value={formatBytes(stats.totalBandwidth)}
             icon={Wifi}
             subtitle="30 derniers jours"
@@ -135,7 +142,7 @@ export default function SiteDashboard() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Rechercher un site..."
+              placeholder={t('search_sites')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-muted/50 border-border"
@@ -145,12 +152,12 @@ export default function SiteDashboard() {
           <div className="flex gap-3">
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px] bg-muted/50 border-border">
-                <SelectValue placeholder="Trier par" />
+                <SelectValue placeholder={t('sort_by')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="recent">Plus récents</SelectItem>
-                <SelectItem value="name">Nom</SelectItem>
-                <SelectItem value="visitors">Visiteurs</SelectItem>
+                <SelectItem value="recent">{t('recent')}</SelectItem>
+                <SelectItem value="name">{t('name')}</SelectItem>
+                <SelectItem value="visitors">{t('visitors')}</SelectItem>
               </SelectContent>
             </Select>
             

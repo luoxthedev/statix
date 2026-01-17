@@ -68,7 +68,7 @@ const formatShortDate = (date: string) => {
 export default function SiteManagement() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getSite, deleteSite, deleteFile, uploadFiles, redeploy, isLoading } = useSiteStore();
+  const { getSite, deleteSite, deleteFile, uploadFiles, redeploy, updateMainFile, isLoading } = useSiteStore();
   
   const site = getSite(id!);
   
@@ -79,6 +79,20 @@ export default function SiteManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<SiteFile | null>(null);
   const [isRedeploying, setIsRedeploying] = useState(false);
+  const [selectedMainFile, setSelectedMainFile] = useState<string>('');
+  
+  // Initialize selected main file when site loads
+  useState(() => {
+    if (site) {
+      setSelectedMainFile(site.mainFile || 'index.html');
+    }
+  });
+  
+  // Get HTML files for dropdown
+  const htmlFiles = useMemo(() => {
+    if (!site) return [];
+    return site.files.filter(f => f.mimeType === 'text/html' || f.originalName.endsWith('.html'));
+  }, [site]);
   
   const filteredFiles = useMemo(() => {
     if (!site) return [];
@@ -176,7 +190,18 @@ export default function SiteManagement() {
     }
   };
   
-  const siteUrl = `https://${site.slug}.staticsitehost.fr`;
+  const handleMainFileChange = async (newMainFile: string) => {
+    try {
+      await updateMainFile(site.id, newMainFile);
+      setSelectedMainFile(newMainFile);
+      toast.success('Fichier principal mis à jour');
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour');
+    }
+  };
+  
+  const subdomainUrl = `http://${site.slug}.lvh.me:3000`;
+  const siteUrl = `/sites/${site.id}/`;
   
   return (
     <div className="min-h-screen bg-background">
@@ -203,21 +228,77 @@ export default function SiteManagement() {
               <h1 className="text-3xl font-bold">{site.name}</h1>
               <StatusBadge status={site.status} />
             </div>
-            <a 
-              href={siteUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-primary hover:underline"
-            >
-              {siteUrl}
-              <ExternalLink className="w-3.5 h-3.5" />
+            <div className="flex flex-col gap-1">
+              <a 
+                href={subdomainUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-primary hover:underline text-sm font-medium"
+              >
+                {subdomainUrl}
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+               <span className="text-xs text-muted-foreground">URL Locale: {window.location.origin}{siteUrl}</span>
+            </div>
+          </div>
+          
+          <div className="flex gap-3">
+             <a
+               href={subdomainUrl}
+               target="_blank"
+               rel="noopener noreferrer"
+             >
+              <Button>
+                <Eye className="mr-2 h-4 w-4" />
+                Voir le site
+              </Button>
             </a>
+
+            <Button variant="outline" onClick={handleRedeploy} disabled={isRedeploying}>
+               {isRedeploying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+               Redéployer
+            </Button>
+            <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Supprimer
+            </Button>
           </div>
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: Files */}
           <div className="lg:col-span-2 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="glass rounded-xl p-6 card-shadow"
+            >
+              <h2 className="text-lg font-semibold mb-4">Fichier principal</h2>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Sélectionnez le fichier qui s'ouvrira par défaut quand on visite votre site.
+                </p>
+                <Select value={selectedMainFile} onValueChange={handleMainFileChange}>
+                  <SelectTrigger className="bg-muted/50 border-border">
+                    <SelectValue placeholder="Sélectionner un fichier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="index.html">index.html (par défaut)</SelectItem>
+                    {htmlFiles.length > 0 && htmlFiles.map(file => (
+                      <SelectItem key={file.id} value={file.originalName}>
+                        {file.originalName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {htmlFiles.length === 0 && (
+                  <p className="text-xs text-amber-500">
+                    ⚠️ Aucun fichier HTML trouvé. Uploadez un fichier HTML pour qu'il apparaisse ici.
+                  </p>
+                )}
+              </div>
+            </motion.div>
+            
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}

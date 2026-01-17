@@ -1,73 +1,175 @@
-# Welcome to your Lovable project
+# SiteHost
 
-## Project info
+Une plateforme moderne d'hébergement de sites statiques avec gestion de fichiers et déploiement en temps réel.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Fonctionnalités
 
-## How can I edit this code?
+- **Gestion de sites statiques** : Uploadez et gérez facilement vos sites HTML/CSS/JS
+- **Interface multilingue** : Support du français et de l'anglais (changement de langue en temps réel)
+- **Dashboard intuitif** : Visualisez vos sites, statistiques et fichiers en un coup d'œil
+- **Déploiement instantané** : Vos sites sont accessibles immédiatement après upload
+- **Routage par sous-domaine** : Accédez à vos sites via `slug.lvh.me:3000` ou `/sites/id/`
+- **Fichier principal configurable** : Choisissez quel fichier HTML servir par défaut
+- **Authentification sécurisée** : Système de login/register avec JWT
+- **Gestion de fichiers** : Upload, suppression et organisation de vos fichiers
 
-There are several ways of editing your application.
+## 🛠️ Technologies
 
-**Use Lovable**
+### Frontend
+- **React 18** avec TypeScript
+- **Vite** pour le build et le dev server
+- **Tailwind CSS** pour le styling
+- **shadcn/ui** pour les composants UI
+- **Zustand** pour la gestion d'état
+- **i18next** pour l'internationalisation
+- **Framer Motion** pour les animations
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Backend
+- **Express.js** pour l'API REST
+- **SQLite** pour la base de données
+- **Multer** pour l'upload de fichiers
+- **JWT** pour l'authentification
+- **bcrypt** pour le hashage des mots de passe
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📦 Installation
 
-**Use your preferred IDE**
+### Prérequis
+- Node.js 18+ et npm
+- Git
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Étapes d'installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Cloner le repository
+git clone https://github.com/luoxthedev/static-site-host.git
+cd static-site-host
 
-Follow these steps:
+# Installer les dépendances du frontend
+npm install
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Installer les dépendances du backend
+cd server
+npm install
+cd ..
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🚀 Démarrage
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Démarrage rapide (les deux serveurs)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+# Dans le dossier racine, lancer le backend
+npm run server
+
+# Dans un autre terminal, lancer le frontend
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Démarrage manuel
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+**Backend** (port 3000) :
+```bash
+cd server
+npm start
+```
 
-**Use GitHub Codespaces**
+**Frontend** (port 8080) :
+```bash
+npm run dev
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🌐 Accès
 
-## What technologies are used for this project?
+- **Frontend** : http://localhost:8080
+- **Backend API** : http://localhost:3000
+- **Sites déployés** : 
+  - Par ID : http://localhost:3000/sites/[site-id]/
+  - Par sous-domaine : http://[slug].lvh.me:3000/
 
-This project is built with:
+## ⚙️ Configuration
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Variables d'environnement
 
-## How can I deploy this project?
+Créez un fichier `.env` dans le dossier `server/` :
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+```env
+PORT=3000
+JWT_SECRET=votre_secret_jwt_ici
+SITES_ROOT=uploads
+```
 
-## Can I connect a custom domain to my Lovable project?
+### Configuration du serveur
 
-Yes, you can!
+Modifiez `server/config.js` pour personnaliser :
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```javascript
+module.exports = {
+  appDomain: 'lvh.me',        // Domaine pour les sous-domaines
+  port: 3000,                 // Port du serveur
+  sitesRoot: 'uploads',       // Dossier de stockage des sites
+  enableSubdomains: true      // Activer le routage par sous-domaine
+};
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📁 Structure du projet
+
+```
+.
+├── src/                    # Code source frontend
+│   ├── components/         # Composants React
+│   ├── pages/             # Pages de l'application
+│   ├── stores/            # State management (Zustand)
+│   ├── locales/           # Fichiers de traduction (FR/EN)
+│   └── lib/               # Utilitaires
+├── server/                # Code source backend
+│   ├── routes/            # Routes Express
+│   ├── middleware/        # Middleware (auth, etc.)
+│   ├── utils/             # Utilitaires backend
+│   ├── uploads/           # Sites hébergés
+│   ├── database.js        # Configuration SQLite
+│   └── index.js           # Point d'entrée backend
+└── public/                # Assets statiques
+```
+
+## 🔑 Fonctionnalités principales
+
+### Gestion des sites
+- Créer un nouveau site avec nom et slug
+- Uploader des fichiers (HTML, CSS, JS, images, etc.)
+- Définir un fichier principal personnalisé
+- Supprimer des fichiers
+- Redéployer un site
+
+### Authentification
+- Inscription avec nom, email et mot de passe
+- Connexion avec JWT
+- Option "Se souvenir de moi"
+- Mot de passe oublié
+
+### Dashboard
+- Vue d'ensemble de tous vos sites
+- Statistiques : nombre de sites, sites actifs, stockage utilisé
+- Recherche et filtrage de sites
+- Accès rapide à la gestion de chaque site
+
+### Internationalisation
+- Basculer entre français et anglais
+- Changement de langue en temps réel
+- Persistance de la préférence linguistique
+
+## 🧪 Scripts disponibles
+
+```bash
+npm run dev          # Démarrer le frontend en mode développement
+npm run build        # Compiler le frontend pour la production
+npm run preview      # Prévisualiser le build de production
+npm run server       # Démarrer le backend
+```
+
+## 📝 License
+
+MIT
+
+## 👨‍💻 Auteur
+
+Développé par [luoxthedev](https://github.com/luoxthedev)

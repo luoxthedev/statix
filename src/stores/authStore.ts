@@ -23,17 +23,6 @@ interface AuthState {
   forgotPassword: (email: string) => Promise<void>;
 }
 
-// Mock users for demo
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Jean Dupont',
-    email: 'demo@example.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jean',
-    createdAt: '2024-01-15T10:00:00Z'
-  }
-];
-
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -46,52 +35,61 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string, rememberMe = false) => {
         set({ isLoading: true });
         
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const user = mockUsers.find(u => u.email === email);
-        
-        if (email === 'demo@example.com' && password === 'password') {
+        try {
+          const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Erreur lors de la connexion');
+          }
+
+          const data = await response.json();
+          
           set({
-            user: user || {
-              id: '1',
-              name: 'Utilisateur Demo',
-              email,
-              avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Demo',
-              createdAt: new Date().toISOString()
-            },
-            token: 'mock-jwt-token-' + Date.now(),
+            user: data.user,
+            token: data.token,
             isAuthenticated: true,
             rememberMe,
             isLoading: false
           });
-        } else {
+        } catch (error) {
           set({ isLoading: false });
-          throw new Error('Email ou mot de passe incorrect');
+          throw error;
         }
       },
 
       register: async (name: string, email: string, password: string) => {
         set({ isLoading: true });
         
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        
-        const newUser: User = {
-          id: Date.now().toString(),
-          name,
-          email,
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
-          createdAt: new Date().toISOString()
-        };
-        
-        set({
-          user: newUser,
-          token: 'mock-jwt-token-' + Date.now(),
-          isAuthenticated: true,
-          rememberMe: false,
-          isLoading: false
-        });
+        try {
+          const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+          });
+
+          if (!response.ok) {
+             const errorData = await response.json();
+             throw new Error(errorData.error || 'Erreur lors de l\'inscription');
+          }
+
+          const data = await response.json();
+          
+          set({
+            user: data.user,
+            token: data.token,
+            isAuthenticated: true,
+            rememberMe: false,
+            isLoading: false
+          });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
       },
 
       loginWithOAuth: async (provider: 'google' | 'github') => {
