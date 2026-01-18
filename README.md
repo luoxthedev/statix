@@ -1,6 +1,7 @@
-# SiteHost
+# Statix
 
 A modern static site hosting platform with file management and real-time deployment.
+Statix is **THE** alternative to Netlify.
 
 [🇫🇷 Version française](README.fr.md)
 
