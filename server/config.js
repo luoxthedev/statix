@@ -2,7 +2,7 @@ export default {
   // Domain principal pour l'application
   // Pour le dev local, utilisez 'lvh.me' qui pointe vers 127.0.0.1
   // ou 'localhost' (mais les sous-domaines ne marchent pas sur localhost sans config hosts)
-  appDomain: 'lvh.me', 
+  appDomain: 'localhost', 
   
   // Port du serveur
   port: 3000,
