@@ -6,6 +6,9 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Convert Unix timestamp (seconds) to JavaScript timestamp (milliseconds)
+const SECONDS_TO_MILLISECONDS = 1000;
+
 try {
   // Get commit hash (short version)
   const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
@@ -18,7 +21,7 @@ try {
   
   const buildInfo = {
     commitHash,
-    commitTimestamp: parseInt(commitTimestamp, 10) * 1000, // Convert to milliseconds
+    commitTimestamp: parseInt(commitTimestamp, 10) * SECONDS_TO_MILLISECONDS,
     commitDate,
     buildTime: Date.now(),
   };
