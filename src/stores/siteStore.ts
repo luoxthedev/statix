@@ -153,8 +153,8 @@ export const useSiteStore = create<SiteState>((set, get) => ({
         });
         
         await get().fetchSites();
-    } catch (e) {
-        console.error("Failed to delete file", e);
+    } catch {
+        // Silently handle file deletion errors
     }
   },
 
@@ -199,8 +199,8 @@ export const useSiteStore = create<SiteState>((set, get) => ({
                 )
             }));
         }
-    } catch (e) {
-        console.error("Failed to update main file", e);
+    } catch {
+        // Silently handle main file update errors
     }
   }
 }));

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Topbar } from '@/components/layout/Topbar';
+import { Footer } from '@/components/layout/Footer';
 import { Dropzone } from '@/components/Dropzone';
 import { useSiteStore } from '@/stores/siteStore';
 import { Button } from '@/components/ui/button';
@@ -249,6 +250,7 @@ export default function AddNewSite() {
           </div>
         </form>
       </main>
+      <Footer />
     </div>
   );
 }

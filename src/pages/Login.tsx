@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
+import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -185,12 +186,8 @@ export default function Login() {
             </Link>
           </p>
         </div>
-        
-        {/* Demo hint */}
-        <p className="text-center text-xs text-muted-foreground mt-4">
-          Demo: demo@example.com / password
-        </p>
       </motion.div>
+      <Footer />
     </div>
   );
 }

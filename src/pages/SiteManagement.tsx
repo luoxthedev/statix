@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Topbar } from '@/components/layout/Topbar';
+import { Footer } from '@/components/layout/Footer';
 import { Dropzone } from '@/components/Dropzone';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -201,8 +202,7 @@ export default function SiteManagement() {
   };
   
   const subdomainUrl = `http://${site.slug}.lvh.me:3000`;
-  const siteUrl = `/sites/${site.id}/`;
-  
+
   return (
     <div className="min-h-screen bg-background">
       <Topbar />
@@ -238,7 +238,6 @@ export default function SiteManagement() {
                 {subdomainUrl}
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
-               <span className="text-xs text-muted-foreground">URL Locale: {window.location.origin}{siteUrl}</span>
             </div>
           </div>
           
@@ -538,6 +537,7 @@ export default function SiteManagement() {
         variant="destructive"
         onConfirm={handleDeleteFile}
       />
+      <Footer />
     </div>
   );
 }

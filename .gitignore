@@ -16,6 +16,9 @@ database.sqlite
 server/database.sqlite
 server/package-lock.json
 
+# Build info (generated at build time)
+src/buildInfo.json
+
 # Environment variables
 .env
 .env.local

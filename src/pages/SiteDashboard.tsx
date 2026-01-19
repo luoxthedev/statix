@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Topbar } from '@/components/layout/Topbar';
+import { Footer } from '@/components/layout/Footer';
 import { StatCard } from '@/components/ui/StatCard';
 import { SiteCard } from '@/components/ui/SiteCard';
 import { useSiteStore } from '@/stores/siteStore';
@@ -233,6 +234,7 @@ export default function SiteDashboard() {
           </motion.div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }
