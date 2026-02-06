@@ -67,7 +67,7 @@ export function StatCard({
                   className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{progress}% utilisé</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('percent_used', { percent: progress })}</p>
             </div>
           )}
         </div>

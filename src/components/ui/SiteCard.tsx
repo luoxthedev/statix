@@ -4,21 +4,24 @@ import { StatusBadge } from './StatusBadge';
 import { Globe, Calendar, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface SiteCardProps {
   site: Site;
   index?: number;
 }
 
-const formatDate = (date: string) => {
-  return new Intl.DateTimeFormat('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  }).format(new Date(date));
-};
-
 export function SiteCard({ site, index = 0 }: SiteCardProps) {
+  const { t, i18n } = useTranslation();
+
+  const formatDate = (date: string) => {
+    return new Intl.DateTimeFormat(i18n.language === 'fr' ? 'fr-FR' : 'en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    }).format(new Date(date));
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -48,7 +51,7 @@ export function SiteCard({ site, index = 0 }: SiteCardProps) {
                   className="flex items-center gap-2 px-4 py-2 bg-background/90 backdrop-blur rounded-full shadow-lg hover:bg-background transition-all hover:scale-105"
                 >
                   <ExternalLink className="w-5 h-5 text-primary" />
-                  <span className="font-medium text-sm">Visiter</span>
+                  <span className="font-medium text-sm">{t('visit')}</span>
                 </a>
               </div>
             </div>
@@ -71,16 +74,16 @@ export function SiteCard({ site, index = 0 }: SiteCardProps) {
             
             <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
               <Calendar className="w-3.5 h-3.5" />
-              <span>Créé le {formatDate(site.createdAt)}</span>
+              <span>{t('created_on', { date: formatDate(site.createdAt) })}</span>
             </div>
             
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
               <div className="text-xs">
-                <span className="text-muted-foreground">Fichiers: </span>
+                <span className="text-muted-foreground">{t('files_label')} </span>
                 <span className="font-medium text-foreground">{site.fileCount}</span>
               </div>
               <div className="text-xs">
-                <span className="text-muted-foreground">Visiteurs: </span>
+                <span className="text-muted-foreground">{t('visitors_label')} </span>
                 <span className="font-medium text-foreground">{site.visitors30d.toLocaleString()}</span>
               </div>
             </div>

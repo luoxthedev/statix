@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Upload, File, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface DropzoneProps {
   onFilesAccepted: (files: File[]) => void;
@@ -41,13 +42,14 @@ export function Dropzone({
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  const { t } = useTranslation();
   
   const validateFile = (file: File): string | null => {
     if (file.size > maxFileSize) {
-      return `${file.name}: Fichier trop volumineux (max ${formatFileSize(maxFileSize)})`;
+      return t('file_too_large', { name: file.name, maxSize: formatFileSize(maxFileSize) });
     }
     if (acceptedTypes.length > 0 && !acceptedTypes.includes(file.type)) {
-      return `${file.name}: Type de fichier non autorisé`;
+      return t('file_type_not_allowed', { name: file.name });
     }
     return null;
   };
@@ -139,13 +141,17 @@ export function Dropzone({
         </motion.div>
         
         <p className="text-lg font-medium text-foreground">
-          {isDragging ? 'Déposez vos fichiers ici' : 'Glissez-déposez vos fichiers'}
+          {isDragging ? t('drop_files_here') : t('drag_drop_files')}
         </p>
         <p className="text-sm text-muted-foreground mt-1">
-          ou <span className="text-primary">parcourez</span> votre ordinateur
+          {t('or_browse').split('<1>').map((part, i) => {
+            if (i === 0) return part;
+            const [highlight, rest] = part.split('</1>');
+            return <span key={i}><span className="text-primary">{highlight}</span>{rest}</span>;
+          })}
         </p>
         <p className="text-xs text-muted-foreground mt-3">
-          HTML, CSS, JS, Images • Max {formatFileSize(maxFileSize)} par fichier
+          {t('file_types_info', { maxSize: formatFileSize(maxFileSize) })}
         </p>
         
         {isUploading && (
@@ -158,7 +164,7 @@ export function Dropzone({
               />
             </div>
             <p className="text-xs text-center text-muted-foreground mt-2">
-              Envoi en cours... {uploadProgress}%
+              {t('uploading_progress', { progress: uploadProgress })}
             </p>
           </div>
         )}

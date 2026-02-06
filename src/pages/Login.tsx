@@ -9,10 +9,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Mail, Lock, Chrome, Github, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, loginWithOAuth, isLoading } = useAuthStore();
+  const { login, isLoading } = useAuthStore();
+  const { t } = useTranslation();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,21 +26,15 @@ export default function Login() {
     
     try {
       await login(email, password, rememberMe);
-      toast.success('Connexion réussie !');
+      toast.success(t('login_success'));
       navigate('/site-dashboard');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erreur de connexion');
+      toast.error(error instanceof Error ? error.message : t('login_error'));
     }
   };
   
-  const handleOAuth = async (provider: 'google' | 'github') => {
-    try {
-      await loginWithOAuth(provider);
-      toast.success(`Connexion avec ${provider} réussie !`);
-      navigate('/site-dashboard');
-    } catch (error) {
-      toast.error(`Erreur de connexion avec ${provider}`);
-    }
+  const handleOAuth = (provider: 'google' | 'github') => {
+    toast.info(t('oauth_in_development'));
   };
   
   return (
@@ -66,21 +62,21 @@ export default function Login() {
         {/* Card */}
         <div className="glass rounded-2xl p-8 card-shadow">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold">Connexion</h1>
+            <h1 className="text-2xl font-bold">{t('login_title')}</h1>
             <p className="text-muted-foreground mt-1">
-              Accédez à votre espace d'hébergement
+              {t('login_subtitle')}
             </p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('email')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="votre@email.com"
+                  placeholder={t('email_placeholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 bg-muted/50 border-border focus:border-primary"
@@ -90,7 +86,7 @@ export default function Login() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -120,14 +116,14 @@ export default function Login() {
                   onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 />
                 <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
-                  Se souvenir de moi
+                  {t('remember_me')}
                 </Label>
               </div>
               <Link 
                 to="/forgot-password" 
                 className="text-sm text-primary hover:underline"
               >
-                Mot de passe oublié ?
+                {t('forgot_password')}
               </Link>
             </div>
             
@@ -139,10 +135,10 @@ export default function Login() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Connexion...
+                  {t('logging_in')}
                 </>
               ) : (
-                'Se connecter'
+                t('login_button')
               )}
             </Button>
           </form>
@@ -152,7 +148,7 @@ export default function Login() {
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Ou continuer avec</span>
+              <span className="bg-card px-2 text-muted-foreground">{t('or_continue_with')}</span>
             </div>
           </div>
           
@@ -180,9 +176,9 @@ export default function Login() {
           </div>
           
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Pas encore de compte ?{' '}
+            {t('no_account')}{' '}
             <Link to="/register" className="text-primary hover:underline font-medium">
-              Créer un compte
+              {t('create_account')}
             </Link>
           </p>
         </div>

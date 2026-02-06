@@ -23,10 +23,12 @@ import {
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function AddNewSite() {
   const navigate = useNavigate();
   const { createSite, uploadFiles, isLoading } = useSiteStore();
+  const { t } = useTranslation();
   
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -50,7 +52,7 @@ export default function AddNewSite() {
     e.preventDefault();
     
     if (!name.trim()) {
-      toast.error('Le nom du site est requis');
+      toast.error(t('site_name_required'));
       return;
     }
     
@@ -71,10 +73,10 @@ export default function AddNewSite() {
         setUploadProgress(100);
       }
       
-      toast.success('Site créé avec succès !');
+      toast.success(t('site_created_success'));
       navigate(`/sites/${site.id}`);
     } catch (error) {
-      toast.error('Erreur lors de la création du site');
+      toast.error(t('site_creation_error'));
     } finally {
       setIsCreating(false);
       setUploadProgress(0);
@@ -92,7 +94,7 @@ export default function AddNewSite() {
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour au tableau de bord
+          {t('back_to_dashboard')}
         </Link>
         
         {/* Header */}
@@ -101,9 +103,9 @@ export default function AddNewSite() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold">Ajouter un nouveau site</h1>
+          <h1 className="text-3xl font-bold">{t('add_new_site')}</h1>
           <p className="text-muted-foreground mt-1">
-            Déployez votre site statique en quelques secondes
+            {t('add_new_site_subtitle')}
           </p>
         </motion.div>
         
@@ -116,7 +118,7 @@ export default function AddNewSite() {
               transition={{ delay: 0.1 }}
             >
               <div className="glass rounded-xl p-6 card-shadow">
-                <h2 className="text-lg font-semibold mb-4">Fichiers du site</h2>
+                <h2 className="text-lg font-semibold mb-4">{t('site_files')}</h2>
                 <Dropzone 
                   onFilesAccepted={setFiles}
                   isUploading={isCreating && files.length > 0}
@@ -125,7 +127,7 @@ export default function AddNewSite() {
                 
                 {files.length === 0 && (
                   <p className="text-sm text-muted-foreground mt-4 text-center">
-                    Vous pouvez aussi ajouter des fichiers après la création du site
+                    {t('files_after_creation')}
                   </p>
                 )}
               </div>
@@ -139,18 +141,18 @@ export default function AddNewSite() {
               className="space-y-6"
             >
               <div className="glass rounded-xl p-6 card-shadow">
-                <h2 className="text-lg font-semibold mb-4">Configuration</h2>
+                <h2 className="text-lg font-semibold mb-4">{t('configuration')}</h2>
                 
                 <div className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="name">
-                      Nom du site <span className="text-destructive">*</span>
+                      {t('site_name')} <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
                       <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         id="name"
-                        placeholder="Mon super site"
+                        placeholder={t('site_name_placeholder')}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="pl-10 bg-muted/50 border-border"
@@ -160,10 +162,10 @@ export default function AddNewSite() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description (optionnelle)</Label>
+                    <Label htmlFor="description">{t('description_optional')}</Label>
                     <Textarea
                       id="description"
-                      placeholder="Une brève description de votre site..."
+                      placeholder={t('description_placeholder')}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       className="bg-muted/50 border-border min-h-[100px]"
@@ -172,7 +174,7 @@ export default function AddNewSite() {
                   
                   {previewUrl && (
                     <div className="space-y-2">
-                      <Label className="text-muted-foreground">URL de prévisualisation</Label>
+                      <Label className="text-muted-foreground">{t('preview_url')}</Label>
                       <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border">
                         <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                         <span className="text-sm font-mono truncate text-primary">
@@ -192,7 +194,7 @@ export default function AddNewSite() {
                       type="button"
                       className="flex items-center justify-between w-full p-6 text-left hover:bg-muted/30 transition-colors"
                     >
-                      <h2 className="text-lg font-semibold">Options avancées</h2>
+                      <h2 className="text-lg font-semibold">{t('advanced_options')}</h2>
                       <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${advancedOpen ? 'rotate-180' : ''}`} />
                     </button>
                   </CollapsibleTrigger>
@@ -200,23 +202,23 @@ export default function AddNewSite() {
                     <div className="px-6 pb-6 space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="customDomain" className="text-muted-foreground">
-                          Domaine personnalisé
+                          {t('custom_domain')}
                         </Label>
                         <Input
                           id="customDomain"
-                          placeholder="www.monsite.com"
+                          placeholder={t('custom_domain_placeholder')}
                           className="bg-muted/50 border-border"
                           disabled
                         />
                         <p className="text-xs text-muted-foreground">
-                          Disponible après la création du site
+                          {t('available_after_creation')}
                         </p>
                       </div>
                       
                       <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                         <div>
-                          <p className="text-sm font-medium">SSL automatique</p>
-                          <p className="text-xs text-muted-foreground">Certificat Let's Encrypt gratuit</p>
+                          <p className="text-sm font-medium">{t('auto_ssl')}</p>
+                          <p className="text-xs text-muted-foreground">{t('free_letsencrypt')}</p>
                         </div>
                         <div className="w-8 h-5 bg-success/20 rounded-full relative">
                           <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-success rounded-full" />
@@ -237,12 +239,12 @@ export default function AddNewSite() {
                 {isCreating ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Création en cours...
+                    {t('creating_site')}
                   </>
                 ) : (
                   <>
                     <Globe className="w-5 h-5 mr-2" />
-                    Créer le site
+                    {t('create_site')}
                   </>
                 )}
               </Button>
