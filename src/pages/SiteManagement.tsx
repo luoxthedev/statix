@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const formatBytes = (bytes: number): string => {
   if (bytes === 0) return '0 B';
@@ -49,8 +50,8 @@ const formatBytes = (bytes: number): string => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 };
 
-const formatDate = (date: string) => {
-  return new Intl.DateTimeFormat('fr-FR', {
+const formatDate = (date: string, locale: string = 'fr') => {
+  return new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-US', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -59,8 +60,8 @@ const formatDate = (date: string) => {
   }).format(new Date(date));
 };
 
-const formatShortDate = (date: string) => {
-  return new Intl.DateTimeFormat('fr-FR', {
+const formatShortDate = (date: string, locale: string = 'fr') => {
+  return new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-US', {
     day: 'numeric',
     month: 'short'
   }).format(new Date(date));
@@ -70,6 +71,7 @@ export default function SiteManagement() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getSite, deleteSite, deleteFile, uploadFiles, redeploy, updateMainFile, isLoading } = useSiteStore();
+  const { t, i18n } = useTranslation();
   
   const site = getSite(id!);
   
@@ -124,10 +126,10 @@ export default function SiteManagement() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Site non trouvé</h2>
-          <p className="text-muted-foreground mb-4">Ce site n'existe pas ou a été supprimé</p>
+          <h2 className="text-xl font-semibold mb-2">{t('site_not_found')}</h2>
+          <p className="text-muted-foreground mb-4">{t('site_not_found_desc')}</p>
           <Button asChild>
-            <Link to="/site-dashboard">Retour au dashboard</Link>
+            <Link to="/site-dashboard">{t('back_to_dashboard')}</Link>
           </Button>
         </div>
       </div>
@@ -146,9 +148,9 @@ export default function SiteManagement() {
       await uploadFiles(site.id, files);
       clearInterval(progressInterval);
       setUploadProgress(100);
-      toast.success(`${files.length} fichier(s) uploadé(s) avec succès`);
+      toast.success(t('files_uploaded_success', { count: files.length }));
     } catch (error) {
-      toast.error('Erreur lors de l\'upload');
+      toast.error(t('upload_error'));
     } finally {
       setTimeout(() => {
         setIsUploading(false);
@@ -161,9 +163,9 @@ export default function SiteManagement() {
     setIsRedeploying(true);
     try {
       await redeploy(site.id);
-      toast.success('Redéploiement réussi !');
+      toast.success(t('redeploy_success'));
     } catch (error) {
-      toast.error('Erreur lors du redéploiement');
+      toast.error(t('redeploy_error'));
     } finally {
       setIsRedeploying(false);
     }
@@ -172,10 +174,10 @@ export default function SiteManagement() {
   const handleDeleteSite = async () => {
     try {
       await deleteSite(site.id);
-      toast.success('Site supprimé');
+      toast.success(t('site_deleted'));
       navigate('/site-dashboard');
     } catch (error) {
-      toast.error('Erreur lors de la suppression');
+      toast.error(t('delete_error'));
     }
   };
   
@@ -184,10 +186,10 @@ export default function SiteManagement() {
     
     try {
       await deleteFile(site.id, fileToDelete.id);
-      toast.success('Fichier supprimé');
+      toast.success(t('file_deleted'));
       setFileToDelete(null);
     } catch (error) {
-      toast.error('Erreur lors de la suppression');
+      toast.error(t('delete_error'));
     }
   };
   
@@ -195,9 +197,9 @@ export default function SiteManagement() {
     try {
       await updateMainFile(site.id, newMainFile);
       setSelectedMainFile(newMainFile);
-      toast.success('Fichier principal mis à jour');
+      toast.success(t('main_file_updated'));
     } catch (error) {
-      toast.error('Erreur lors de la mise à jour');
+      toast.error(t('update_error'));
     }
   };
   
@@ -215,7 +217,7 @@ export default function SiteManagement() {
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour au tableau de bord
+          {t('back_to_dashboard')}
         </Link>
         
         {/* Header */}
@@ -250,17 +252,17 @@ export default function SiteManagement() {
              >
               <Button>
                 <Eye className="mr-2 h-4 w-4" />
-                Voir le site
+                {t('view_site')}
               </Button>
             </a>
 
             <Button variant="outline" onClick={handleRedeploy} disabled={isRedeploying}>
                {isRedeploying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-               Redéployer
+               {t('redeploy')}
             </Button>
             <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
-              Supprimer
+              {t('delete')}
             </Button>
           </div>
         </motion.div>
@@ -273,17 +275,17 @@ export default function SiteManagement() {
               animate={{ opacity: 1, x: 0 }}
               className="glass rounded-xl p-6 card-shadow"
             >
-              <h2 className="text-lg font-semibold mb-4">Fichier principal</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('main_file')}</h2>
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  Sélectionnez le fichier qui s'ouvrira par défaut quand on visite votre site.
+                  {t('main_file_desc')}
                 </p>
                 <Select value={selectedMainFile} onValueChange={handleMainFileChange}>
                   <SelectTrigger className="bg-muted/50 border-border">
-                    <SelectValue placeholder="Sélectionner un fichier" />
+                    <SelectValue placeholder={t('select_file')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="index.html">index.html (par défaut)</SelectItem>
+                    <SelectItem value="index.html">{t('default_file')}</SelectItem>
                     {htmlFiles.length > 0 && htmlFiles.map(file => (
                       <SelectItem key={file.id} value={file.originalName}>
                         {file.originalName}
@@ -293,7 +295,7 @@ export default function SiteManagement() {
                 </Select>
                 {htmlFiles.length === 0 && (
                   <p className="text-xs text-amber-500">
-                    ⚠️ Aucun fichier HTML trouvé. Uploadez un fichier HTML pour qu'il apparaisse ici.
+                    {t('no_html_warning')}
                   </p>
                 )}
               </div>
@@ -304,7 +306,7 @@ export default function SiteManagement() {
               animate={{ opacity: 1, x: 0 }}
               className="glass rounded-xl p-6 card-shadow"
             >
-              <h2 className="text-lg font-semibold mb-4">Ajouter des fichiers</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('add_files')}</h2>
               <Dropzone 
                 onFilesAccepted={handleUpload}
                 isUploading={isUploading}
@@ -320,14 +322,14 @@ export default function SiteManagement() {
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                 <h2 className="text-lg font-semibold">
-                  Fichiers ({site.fileCount})
+                  {t('files_count', { count: site.fileCount })}
                 </h2>
                 
                 <div className="flex gap-3">
                   <div className="relative flex-1 sm:w-48">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                      placeholder="Rechercher..."
+                      placeholder={t('search')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-9 h-9 bg-muted/50 border-border text-sm"
@@ -339,9 +341,9 @@ export default function SiteManagement() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="date">Date</SelectItem>
-                      <SelectItem value="name">Nom</SelectItem>
-                      <SelectItem value="size">Taille</SelectItem>
+                      <SelectItem value="date">{t('date')}</SelectItem>
+                      <SelectItem value="name">{t('name')}</SelectItem>
+                      <SelectItem value="size">{t('size')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -380,18 +382,18 @@ export default function SiteManagement() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>
                             <Eye className="w-4 h-4 mr-2" />
-                            Voir
+                            {t('view')}
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                             <Download className="w-4 h-4 mr-2" />
-                            Télécharger
+                            {t('download')}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-destructive focus:text-destructive"
                             onClick={() => setFileToDelete(file)}
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
-                            Supprimer
+                            {t('delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -402,7 +404,7 @@ export default function SiteManagement() {
                 <div className="text-center py-8">
                   <FileIcon className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
                   <p className="text-muted-foreground">
-                    {searchQuery ? 'Aucun fichier trouvé' : 'Aucun fichier uploadé'}
+                    {searchQuery ? t('no_files_found') : t('no_files_uploaded')}
                   </p>
                 </div>
               )}
@@ -416,15 +418,15 @@ export default function SiteManagement() {
               animate={{ opacity: 1, x: 0 }}
               className="glass rounded-xl p-6 card-shadow"
             >
-              <h2 className="text-lg font-semibold mb-4">Informations</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('information')}</h2>
               
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <div>
-                    <p className="text-muted-foreground">Dernier déploiement</p>
+                    <p className="text-muted-foreground">{t('last_deploy')}</p>
                     <p className="font-medium">
-                      {site.lastDeployAt ? formatDate(site.lastDeployAt) : 'Jamais'}
+                      {site.lastDeployAt ? formatDate(site.lastDeployAt, i18n.language) : t('never')}
                     </p>
                   </div>
                 </div>
@@ -432,7 +434,7 @@ export default function SiteManagement() {
                 <div className="flex items-center gap-3 text-sm">
                   <HardDrive className="w-4 h-4 text-muted-foreground" />
                   <div>
-                    <p className="text-muted-foreground">Taille totale</p>
+                    <p className="text-muted-foreground">{t('total_size')}</p>
                     <p className="font-medium">{formatBytes(site.totalSizeBytes)}</p>
                   </div>
                 </div>
@@ -440,7 +442,7 @@ export default function SiteManagement() {
                 <div className="flex items-center gap-3 text-sm">
                   <Users className="w-4 h-4 text-muted-foreground" />
                   <div>
-                    <p className="text-muted-foreground">Visiteurs (30j)</p>
+                    <p className="text-muted-foreground">{t('visitors_30d')}</p>
                     <p className="font-medium">{site.visitors30d.toLocaleString()}</p>
                   </div>
                 </div>
@@ -448,7 +450,7 @@ export default function SiteManagement() {
                 <div className="flex items-center gap-3 text-sm">
                   <FileIcon className="w-4 h-4 text-muted-foreground" />
                   <div>
-                    <p className="text-muted-foreground">Fichiers</p>
+                    <p className="text-muted-foreground">{t('files')}</p>
                     <p className="font-medium">{site.fileCount}</p>
                   </div>
                 </div>
@@ -457,9 +459,9 @@ export default function SiteManagement() {
                   <div className="flex items-center gap-3 text-sm">
                     <Globe className="w-4 h-4 text-muted-foreground" />
                     <div>
-                      <p className="text-muted-foreground">Domaine personnalisé</p>
+                      <p className="text-muted-foreground">{t('custom_domain_info')}</p>
                       <p className="font-medium">
-                        {site.customDomain || 'Non configuré'}
+                        {site.customDomain || t('not_configured')}
                       </p>
                     </div>
                   </div>
@@ -468,9 +470,9 @@ export default function SiteManagement() {
                 <div className="flex items-center gap-3 text-sm">
                   <Shield className="w-4 h-4 text-muted-foreground" />
                   <div>
-                    <p className="text-muted-foreground">SSL</p>
+                    <p className="text-muted-foreground">{t('ssl')}</p>
                     <p className={`font-medium ${site.sslActive ? 'text-success' : ''}`}>
-                      {site.sslActive ? 'Actif' : 'Inactif'}
+                      {site.sslActive ? t('active') : t('inactive')}
                     </p>
                   </div>
                 </div>
@@ -483,7 +485,7 @@ export default function SiteManagement() {
               transition={{ delay: 0.1 }}
               className="glass rounded-xl p-6 card-shadow space-y-3"
             >
-              <h2 className="text-lg font-semibold mb-2">Actions</h2>
+              <h2 className="text-lg font-semibold mb-2">{t('actions')}</h2>
               
               <Button 
                 className="w-full justify-start bg-primary hover:bg-primary/90"
@@ -495,12 +497,12 @@ export default function SiteManagement() {
                 ) : (
                   <RefreshCw className="w-4 h-4 mr-2" />
                 )}
-                {isRedeploying ? 'Déploiement...' : 'Redéployer'}
+                {isRedeploying ? t('deploying_action') : t('redeploy')}
               </Button>
               
               <Button variant="outline" className="w-full justify-start bg-muted/50 border-border">
                 <Download className="w-4 h-4 mr-2" />
-                Télécharger le site
+                {t('download_site')}
               </Button>
               
               <Button 
@@ -509,7 +511,7 @@ export default function SiteManagement() {
                 onClick={() => setShowDeleteDialog(true)}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Supprimer le site
+                {t('delete_site')}
               </Button>
             </motion.div>
           </div>
@@ -520,9 +522,9 @@ export default function SiteManagement() {
       <ConfirmDialog
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
-        title="Supprimer le site"
-        description={`Êtes-vous sûr de vouloir supprimer "${site.name}" ? Cette action est irréversible et supprimera tous les fichiers associés.`}
-        confirmText="Supprimer"
+        title={t('delete_site_title')}
+        description={t('delete_site_desc', { name: site.name })}
+        confirmText={t('delete')}
         variant="destructive"
         onConfirm={handleDeleteSite}
         isLoading={isLoading}
@@ -532,9 +534,9 @@ export default function SiteManagement() {
       <ConfirmDialog
         open={!!fileToDelete}
         onOpenChange={(open) => !open && setFileToDelete(null)}
-        title="Supprimer le fichier"
-        description={`Êtes-vous sûr de vouloir supprimer "${fileToDelete?.originalName}" ?`}
-        confirmText="Supprimer"
+        title={t('delete_file_title')}
+        description={t('delete_file_desc', { name: fileToDelete?.originalName })}
+        confirmText={t('delete')}
         variant="destructive"
         onConfirm={handleDeleteFile}
       />

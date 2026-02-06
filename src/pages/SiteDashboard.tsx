@@ -188,7 +188,7 @@ export default function SiteDashboard() {
             <Button asChild className="bg-primary hover:bg-primary/90">
               <Link to="/add-new-site">
                 <Plus className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Nouveau site</span>
+                <span className="hidden sm:inline">{t('new_site_button')}</span>
               </Link>
             </Button>
           </div>
@@ -215,19 +215,19 @@ export default function SiteDashboard() {
               <Globe className="w-10 h-10 text-muted-foreground/50" />
             </div>
             <h3 className="text-lg font-medium mb-2">
-              {searchQuery ? 'Aucun site trouvé' : 'Aucun site pour le moment'}
+              {searchQuery ? t('no_sites_search') : t('no_sites_yet')}
             </h3>
             <p className="text-muted-foreground mb-6">
               {searchQuery 
-                ? 'Essayez avec d\'autres termes de recherche'
-                : 'Créez votre premier site pour commencer'
+                ? t('try_other_search')
+                : t('create_first_site')
               }
             </p>
             {!searchQuery && (
               <Button asChild>
                 <Link to="/add-new-site">
                   <Plus className="w-4 h-4 mr-2" />
-                  Créer un site
+                  {t('create_a_site')}
                 </Link>
               </Button>
             )}

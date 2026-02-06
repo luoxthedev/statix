@@ -9,10 +9,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Mail, Lock, User, Chrome, Github, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register, loginWithOAuth, isLoading } = useAuthStore();
+  const { register, isLoading } = useAuthStore();
+  const { t } = useTranslation();
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -26,13 +28,13 @@ export default function Register() {
   const validate = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!name.trim()) newErrors.name = 'Le nom est requis';
-    if (!email.trim()) newErrors.email = "L'email est requis";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = 'Email invalide';
-    if (!password) newErrors.password = 'Le mot de passe est requis';
-    else if (password.length < 8) newErrors.password = 'Minimum 8 caractères';
-    if (password !== confirmPassword) newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
-    if (!acceptTos) newErrors.acceptTos = 'Vous devez accepter les CGU';
+    if (!name.trim()) newErrors.name = t('validation_name_required');
+    if (!email.trim()) newErrors.email = t('validation_email_required');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = t('validation_email_invalid');
+    if (!password) newErrors.password = t('validation_password_required');
+    else if (password.length < 8) newErrors.password = t('validation_password_min');
+    if (password !== confirmPassword) newErrors.confirmPassword = t('validation_password_mismatch');
+    if (!acceptTos) newErrors.acceptTos = t('validation_tos_required');
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -45,21 +47,15 @@ export default function Register() {
     
     try {
       await register(name, email, password);
-      toast.success('Compte créé avec succès !');
+      toast.success(t('register_success'));
       navigate('/site-dashboard');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erreur lors de la création du compte');
+      toast.error(error instanceof Error ? error.message : t('register_error'));
     }
   };
   
-  const handleOAuth = async (provider: 'google' | 'github') => {
-    try {
-      await loginWithOAuth(provider);
-      toast.success(`Inscription avec ${provider} réussie !`);
-      navigate('/site-dashboard');
-    } catch (error) {
-      toast.error(`Erreur d'inscription avec ${provider}`);
-    }
+  const handleOAuth = (provider: 'google' | 'github') => {
+    toast.info(t('oauth_in_development'));
   };
   
   return (
@@ -87,21 +83,21 @@ export default function Register() {
         {/* Card */}
         <div className="glass rounded-2xl p-8 card-shadow">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold">Créer un compte</h1>
+            <h1 className="text-2xl font-bold">{t('register_title')}</h1>
             <p className="text-muted-foreground mt-1">
-              Hébergez vos sites en quelques clics
+              {t('register_subtitle')}
             </p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nom complet</Label>
+              <Label htmlFor="name">{t('full_name')}</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Jean Dupont"
+                  placeholder={t('name_placeholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="pl-10 bg-muted/50 border-border focus:border-primary"
@@ -111,13 +107,13 @@ export default function Register() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('email')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="votre@email.com"
+                  placeholder={t('email_placeholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 bg-muted/50 border-border focus:border-primary"
@@ -127,7 +123,7 @@ export default function Register() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -150,7 +146,7 @@ export default function Register() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+              <Label htmlFor="confirmPassword">{t('confirm_password')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -174,10 +170,10 @@ export default function Register() {
                   className="mt-0.5"
                 />
                 <Label htmlFor="acceptTos" className="text-sm font-normal cursor-pointer leading-tight">
-                  J'accepte les{' '}
-                  <a href="#" className="text-primary hover:underline">conditions générales</a>
-                  {' '}et la{' '}
-                  <a href="#" className="text-primary hover:underline">politique de confidentialité</a>
+                  {t('accept_tos')}{' '}
+                  <a href="#" className="text-primary hover:underline">{t('terms')}</a>
+                  {' '}{t('and_the')}{' '}
+                  <a href="#" className="text-primary hover:underline">{t('privacy_policy')}</a>
                 </Label>
               </div>
               {errors.acceptTos && <p className="text-xs text-destructive">{errors.acceptTos}</p>}
@@ -189,7 +185,7 @@ export default function Register() {
                   onCheckedChange={(checked) => setNewsletter(checked as boolean)}
                 />
                 <Label htmlFor="newsletter" className="text-sm font-normal cursor-pointer">
-                  Recevoir les actualités et offres par email
+                  {t('newsletter')}
                 </Label>
               </div>
             </div>
@@ -202,10 +198,10 @@ export default function Register() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Création...
+                  {t('creating')}
                 </>
               ) : (
-                'Créer mon compte'
+                t('create_my_account')
               )}
             </Button>
           </form>
@@ -215,7 +211,7 @@ export default function Register() {
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Ou s'inscrire avec</span>
+              <span className="bg-card px-2 text-muted-foreground">{t('or_register_with')}</span>
             </div>
           </div>
           
@@ -243,9 +239,9 @@ export default function Register() {
           </div>
           
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Déjà un compte ?{' '}
+            {t('already_account')}{' '}
             <Link to="/login" className="text-primary hover:underline font-medium">
-              Se connecter
+              {t('sign_in')}
             </Link>
           </p>
         </div>

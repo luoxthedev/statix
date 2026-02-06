@@ -8,9 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Mail, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { useTranslation, Trans } from 'react-i18next';
 
 export default function ForgotPassword() {
   const { forgotPassword, isLoading } = useAuthStore();
+  const { t } = useTranslation();
   
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -22,7 +24,7 @@ export default function ForgotPassword() {
       await forgotPassword(email);
       setIsSubmitted(true);
     } catch (error) {
-      toast.error('Erreur lors de l\'envoi de l\'email');
+      toast.error(t('forgot_password_error'));
     }
   };
   
@@ -59,21 +61,21 @@ export default function ForgotPassword() {
                 exit={{ opacity: 0, x: 20 }}
               >
                 <div className="text-center mb-6">
-                  <h1 className="text-2xl font-bold">Mot de passe oublié</h1>
+                  <h1 className="text-2xl font-bold">{t('forgot_password_title')}</h1>
                   <p className="text-muted-foreground mt-1">
-                    Entrez votre email pour réinitialiser votre mot de passe
+                    {t('forgot_password_subtitle')}
                   </p>
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('email')}</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         id="email"
                         type="email"
-                        placeholder="votre@email.com"
+                        placeholder={t('email_placeholder')}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10 bg-muted/50 border-border focus:border-primary"
@@ -90,10 +92,10 @@ export default function ForgotPassword() {
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Envoi...
+                        {t('sending')}
                       </>
                     ) : (
-                      'Envoyer le lien'
+                      t('send_link')
                     )}
                   </Button>
                 </form>
@@ -108,13 +110,14 @@ export default function ForgotPassword() {
                 <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-success" />
                 </div>
-                <h2 className="text-xl font-bold mb-2">Email envoyé !</h2>
+                <h2 className="text-xl font-bold mb-2">{t('email_sent')}</h2>
                 <p className="text-muted-foreground mb-6">
-                  Si un compte existe pour <span className="font-medium text-foreground">{email}</span>, 
-                  vous recevrez un lien de réinitialisation dans quelques minutes.
+                  <Trans i18nKey="email_sent_desc" values={{ email }}>
+                    If an account exists for <span className="font-medium text-foreground">{{email}}</span>, you will receive a reset link in a few minutes.
+                  </Trans>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Vérifiez également vos spams
+                  {t('check_spam')}
                 </p>
               </motion.div>
             )}
@@ -126,7 +129,7 @@ export default function ForgotPassword() {
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Retour à la connexion
+              {t('back_to_login')}
             </Link>
           </div>
         </div>
