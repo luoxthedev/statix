@@ -1,66 +1,51 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import { createSqliteAdapter } from './database/sqlite.js';
+import { createMysqlAdapter } from './database/mysql.js';
+import { createSupabaseAdapter } from './database/supabase.js';
 
 let db;
 
+/**
+ * Returns a database connection based on the DB_TYPE environment variable.
+ *
+ * Supported values for DB_TYPE:
+ *   - "sqlite"   (default) – local SQLite file
+ *   - "mysql"    – MySQL / MariaDB on a VPS
+ *   - "supabase" – Supabase (Postgres) via direct connection string
+ *
+ * See .env.example for the full list of environment variables.
+ */
 export async function getDb() {
   if (db) return db;
-  
-  db = await open({
-    filename: './database.sqlite',
-    driver: sqlite3.Database
-  });
 
-  await db.exec('PRAGMA foreign_keys = ON;');
+  const dbType = (process.env.DB_TYPE || 'sqlite').toLowerCase();
 
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      avatar TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    );
+  switch (dbType) {
+    case 'mysql':
+    case 'mariadb':
+      db = await createMysqlAdapter({
+        mysqlHost: process.env.MYSQL_HOST,
+        mysqlPort: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT, 10) : 3306,
+        mysqlUser: process.env.MYSQL_USER,
+        mysqlPassword: process.env.MYSQL_PASSWORD,
+        mysqlDatabase: process.env.MYSQL_DATABASE,
+      });
+      break;
 
-    CREATE TABLE IF NOT EXISTS sites (
-      id TEXT PRIMARY KEY,
-      owner_id TEXT NOT NULL,
-      name TEXT NOT NULL,
-      slug TEXT UNIQUE NOT NULL,
-      description TEXT,
-      status TEXT DEFAULT 'active',
-      created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now')),
-      last_deploy_at TEXT,
-      total_size_bytes INTEGER DEFAULT 0,
-      file_count INTEGER DEFAULT 0,
-      bandwidth_bytes_30d INTEGER DEFAULT 0,
-      visitors_30d INTEGER DEFAULT 0,
-      custom_domain TEXT,
-      ssl_active INTEGER DEFAULT 0,
-      preview_image TEXT,
-      main_file TEXT DEFAULT 'index.html',
-      FOREIGN KEY (owner_id) REFERENCES users(id)
-    );
+    case 'supabase':
+      db = await createSupabaseAdapter({
+        supabaseDbUrl: process.env.SUPABASE_DB_URL,
+        supabaseSsl: process.env.SUPABASE_SSL !== 'false',
+      });
+      break;
 
-    CREATE TABLE IF NOT EXISTS site_files (
-      id TEXT PRIMARY KEY,
-      site_id TEXT NOT NULL,
-      path TEXT NOT NULL,
-      original_name TEXT,
-      size_bytes INTEGER,
-      mime_type TEXT,
-      uploaded_at TEXT DEFAULT (datetime('now')),
-      FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
-    );
-  `);
-
-  const siteColumns = await db.all('PRAGMA table_info(sites)');
-  const hasMainFile = siteColumns.some((col) => col.name === 'main_file');
-  if (!hasMainFile) {
-    await db.run("ALTER TABLE sites ADD COLUMN main_file TEXT DEFAULT 'index.html'");
+    case 'sqlite':
+    default:
+      db = await createSqliteAdapter({
+        sqliteFile: process.env.SQLITE_FILE || './database.sqlite',
+      });
+      break;
   }
 
+  console.log(`[database] Using ${dbType} adapter`);
   return db;
 }

@@ -29,7 +29,7 @@ Statix est **L'Alternative** open-source a Netlify.
 
 ### Backend
 - **Express.js** pour l'API REST
-- **SQLite** pour la base de données
+- **SQLite** pour la base de données (par défaut), avec support de **MySQL/MariaDB** et **Supabase (Postgres)**
 - **Multer** pour l'upload de fichiers
 - **JWT** pour l'authentification
 - **bcrypt** pour le hashage des mots de passe
@@ -93,12 +93,54 @@ npm run dev
 
 ### Variables d'environnement
 
-Créez un fichier `.env` dans le dossier `server/` :
+Créez un fichier `.env` dans le dossier `server/` (voir `server/.env.example`) :
 
 ```env
 PORT=3000
 JWT_SECRET=votre_secret_jwt_ici
 SITES_ROOT=uploads
+```
+
+### Configuration de la base de données
+
+Statix supporte trois types de bases de données. Définissez `DB_TYPE` dans votre fichier `.env` :
+
+#### SQLite (par défaut – fichier local, aucune installation requise)
+
+```env
+DB_TYPE=sqlite
+SQLITE_FILE=./database.sqlite
+```
+
+#### MySQL / MariaDB (VPS)
+
+Installez d'abord le driver :
+```bash
+cd server && npm install mysql2
+```
+
+```env
+DB_TYPE=mysql
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=votre_mot_de_passe
+MYSQL_DATABASE=statix
+```
+
+#### Supabase (Postgres)
+
+Installez d'abord le driver :
+```bash
+cd server && npm install pg
+```
+
+Utilisez ensuite la **chaîne de connexion directe** depuis le Dashboard Supabase (Settings → Database) :
+
+```env
+DB_TYPE=supabase
+SUPABASE_DB_URL=postgresql://postgres:password@db.xxxxx.supabase.co:5432/postgres
+SUPABASE_SSL=true
 ```
 
 ### Configuration du serveur
@@ -127,9 +169,9 @@ module.exports = {
 ├── server/                # Code source backend
 │   ├── routes/            # Routes Express
 │   ├── middleware/        # Middleware (auth, etc.)
-│   ├── utils/             # Utilitaires backend
+│   ├── database/          # Adaptateurs de base de données (sqlite, mysql, supabase)
 │   ├── uploads/           # Sites hébergés
-│   ├── database.js        # Configuration SQLite
+│   ├── database.js        # Initialisation de la base de données (sélection d'adaptateur)
 │   └── index.js           # Point d'entrée backend
 └── public/                # Assets statiques
 ```
