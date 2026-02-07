@@ -29,7 +29,7 @@ Statix is **THE** open-source alternative to Netlify.
 
 ### Backend
 - **Express.js** for REST API
-- **SQLite** for database
+- **SQLite** for database (default), with support for **MySQL/MariaDB** and **Supabase (Postgres)**
 - **Multer** for file uploads
 - **JWT** for authentication
 - **bcrypt** for password hashing
@@ -93,12 +93,54 @@ npm run dev
 
 ### Environment Variables
 
-Create a `.env` file in the `server/` folder:
+Create a `.env` file in the `server/` folder (see `server/.env.example`):
 
 ```env
 PORT=3000
 JWT_SECRET=your_jwt_secret_here
 SITES_ROOT=uploads
+```
+
+### Database Configuration
+
+Statix supports three database backends. Set `DB_TYPE` in your `.env` file:
+
+#### SQLite (default – local file, no setup needed)
+
+```env
+DB_TYPE=sqlite
+SQLITE_FILE=./database.sqlite
+```
+
+#### MySQL / MariaDB (VPS)
+
+Install the driver first:
+```bash
+cd server && npm install mysql2
+```
+
+```env
+DB_TYPE=mysql
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=your_password
+MYSQL_DATABASE=statix
+```
+
+#### Supabase (Postgres)
+
+Install the driver first:
+```bash
+cd server && npm install pg
+```
+
+Then use the **direct connection string** from the Supabase Dashboard (Settings → Database):
+
+```env
+DB_TYPE=supabase
+SUPABASE_DB_URL=postgresql://postgres:password@db.xxxxx.supabase.co:5432/postgres
+SUPABASE_SSL=true
 ```
 
 ### Server Configuration
@@ -127,9 +169,9 @@ module.exports = {
 ├── server/                # Backend source code
 │   ├── routes/            # Express routes
 │   ├── middleware/        # Middleware (auth, etc.)
-│   ├── utils/             # Backend utilities
+│   ├── database/          # Database adapters (sqlite, mysql, supabase)
 │   ├── uploads/           # Hosted sites
-│   ├── database.js        # SQLite configuration
+│   ├── database.js        # Database initialisation (adapter selection)
 │   └── index.js           # Backend entry point
 └── public/                # Static assets
 ```
