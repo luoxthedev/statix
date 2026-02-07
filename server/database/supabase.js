@@ -116,7 +116,7 @@ export async function createSupabaseAdapter(config) {
     if (res.rows.length === 0) {
       await pool.query("ALTER TABLE sites ADD COLUMN main_file TEXT DEFAULT 'index.html'");
     }
-  } catch (_) {
+  } catch (err) {
     // Ignore if table doesn't exist yet
   }
 

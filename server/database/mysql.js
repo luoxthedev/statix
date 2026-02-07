@@ -60,7 +60,7 @@ export async function createMysqlAdapter(config) {
     if (columns.length === 0) {
       await pool.execute("ALTER TABLE sites ADD COLUMN main_file VARCHAR(255) DEFAULT 'index.html'");
     }
-  } catch (_) {
+  } catch (err) {
     // Table might not exist yet on first run – ignore
   }
 
